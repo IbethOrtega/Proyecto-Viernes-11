@@ -738,3 +738,39 @@ body.modal-abierto {
     color: #333; /* Color del texto */
 }
 
+
+nav ul li {
+    position: relative; /* Necesario para el menú desplegable */
+}
+
+nav ul li .dropdown {
+    display: none; /* Ocultar el menú desplegable */
+    position: absolute;
+    top: 100%; /* Ubica el menú justo debajo del elemento padre */
+    left: 0;
+    background-color: #6a5acd; /* Color de fondo del menú desplegable */
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra */
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+nav ul li:hover .dropdown {
+    display: block; /* Mostrar el menú desplegable al pasar el ratón */
+}
+
+nav ul li .dropdown li {
+    margin: 5px 0;
+}
+
+nav ul li .dropdown li a {
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+    display: block;
+}
+
+nav ul li .dropdown li a:hover {
+    background-color: #5a4bcf; /* Cambio de color en hover */
+    border-radius: 5px;
+}
