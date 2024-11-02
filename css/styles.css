@@ -11,6 +11,10 @@ body {
     background-attachment: fixed;
     background-position: center;
 }
+
+
+
+
 html {
     scroll-behavior: smooth;
 }
@@ -737,7 +741,6 @@ body.modal-abierto {
     font-size: 18px; /* Tamaño de fuente */
     color: #333; /* Color del texto */
 }
-
 
 nav ul li {
     position: relative; /* Necesario para el menú desplegable */

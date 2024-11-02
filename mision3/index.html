@@ -181,10 +181,165 @@
 
     <h2>Generar Gráficas</h2>
     <p>Podrás visualizar algunos datos de los servicios ofrecidos por el sistema</p>
-    <button onclick="generarGraficas('bar', 'precio')">Gráfica de Barras - Precio Total</button>
-    <button onclick="generarGraficas('line', 'horas')">Gráfica de Líneas - Horas de Trabajo</button>
-    <button onclick="generarGraficas('histogram', 'tarifa_hora')">Histograma - Tarifa por Hora</button>
+    <button onclick="generarGraficas('bar', 'precio')">Precio Total</button>
+    <button onclick="generarGraficas('bar', 'horas')">Horas</button>
+    <button onclick="generarGraficas('line', 'horas')">Horas de Trabajo</button>
+    <button onclick="generarGraficas('line', 'precio')">Tasa por Hora</button>
+    <button onclick="generarGraficas('histogram', 'tarifa_hora')">Tarifa por Hora</button>
+    <button onclick="generarGraficas('histogram', 'horas')">Hora Trabajo</button>
+
+
     <canvas id="grafica" style="display: none;"></canvas>
+    <script>
+        // Función para contar la frecuencia de cada servicio
+        function contarServicios(data) {
+            const contadorServicios = {};
+    
+            data.forEach(row => {
+                const servicio = row.Service;
+                if (contadorServicios[servicio]) {
+                    contadorServicios[servicio]++;
+                } else {
+                    contadorServicios[servicio] = 1;
+                }
+            });
+    
+            return contadorServicios;
+        }
+    
+        function generarGraficaServicios() {
+            // Cargar datos desde el archivo CSV (aquí simulado como un fetch)
+            fetch('services_data_webstore.csv')
+                .then(response => response.text())
+                .then(csvData => {
+                    const rows = csvData.trim().split('\n').slice(1); // Saltar encabezado
+                    const datos = rows.map(row => {
+                        const columns = row.split(',');
+                        return {
+                            Service: columns[2] // Columna de servicios
+                        };
+                    });
+    
+                    // Contar la frecuencia de cada servicio
+                    const frecuencias = contarServicios(datos);
+    
+                    // Configuración de los datos para Chart.js
+                    const etiquetas = Object.keys(frecuencias);
+                    const valores = Object.values(frecuencias);
+    
+                    // Crear el gráfico
+                    const ctx = document.getElementById('grafica').getContext('2d');
+                    
+                    // Eliminar el gráfico anterior si existe
+                    if (window.miGrafico) {
+                        window.miGrafico.destroy();
+                    }
+    
+                    // Configuración del gráfico de barras
+                    window.miGrafico = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: etiquetas,
+                            datasets: [{
+                                label: 'Frecuencia de Servicios',
+                                data: valores,
+                                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error al cargar los datos:', error));
+        }
+    </script>
+    <script>
+        // Función para obtener tasas por hora y fechas
+        function obtenerTasasPorHora(data) {
+            const tasasPorHora = [];
+            const fechas = [];
+    
+            data.forEach(row => {
+                const fecha = row.Date;
+                const tasaHora = parseFloat(row['Hourly Rate']); // Convertir a número
+                fechas.push(fecha);
+                tasasPorHora.push(tasaHora);
+            });
+    
+            return { tasasPorHora, fechas };
+        }
+    
+        function generarGraficaTasaPorHora() {
+            // Cargar datos desde el archivo CSV
+            fetch('services_data_webstore.csv')
+                .then(response => response.text())
+                .then(csvData => {
+                    const rows = csvData.trim().split('\n').slice(1); // Saltar encabezado
+                    const datos = rows.map(row => {
+                        const columns = row.split(',');
+                        return {
+                            Date: columns[1], // Columna de fechas
+                            'Hourly Rate': columns[4] // Columna de tasa por hora
+                        };
+                    });
+    
+                    // Obtener tasas y fechas
+                    const { tasasPorHora, fechas } = obtenerTasasPorHora(datos);
+    
+                    // Crear el gráfico
+                    const ctx = document.getElementById('graficaTasaHora').getContext('2d');
+                    
+                    // Eliminar el gráfico anterior si existe
+                    if (window.miGraficoTasa) {
+                        window.miGraficoTasa.destroy();
+                    }
+    
+                    // Configuración del gráfico lineal
+                    window.miGraficoTasa = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: fechas,
+                            datasets: [{
+                                label: 'Tasa por Hora',
+                                data: tasasPorHora,
+                                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 2,
+                                fill: false // No llenar el área bajo la línea
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Fecha'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Tasa por Hora'
+                                    },
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error al cargar los datos:', error));
+        }
+    </script>
+    
     <script>
         function generarGraficas(tipo, dataset) {
             fetch('/generar_datos')

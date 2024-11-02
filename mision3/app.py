@@ -12,11 +12,18 @@ def generar_datos():
     df = pd.read_csv('services_data_webstore.csv')
     labels = df['Order ID'].tolist()  # Etiquetas para el eje x
 
-    # Crear un diccionario con diferentes conjuntos de datos
+    # Contar ocurrencias de cada servicio para la gráfica de barras de servicios
+    service_counts = df['Service'].value_counts().to_dict()
+    services = list(service_counts.keys())  # Tipos de servicios
+    counts = list(service_counts.values())  # Conteos de cada servicio
+
+    # Diccionario con diferentes conjuntos de datos
     data = {
-        'precio': df['Total Price'].tolist(),  # Valores para precio total
-        'horas': df['Hours of Work'].tolist(),  # Valores para horas de trabajo
-        'tarifa_hora': df['Hourly Rate'].tolist()  # Valores para tarifa por hora
+        'precio': df['Total Price'].tolist(),
+        'horas': df['Hours of Work'].tolist(),
+        'tarifa_hora': df['Hourly Rate'].tolist(),
+        'service_labels': services,  # Etiquetas de servicios
+        'service_counts': counts     # Conteo de servicios
     }
     
     return jsonify({'labels': labels, 'data': data})
